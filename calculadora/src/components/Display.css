@@ -1,0 +1,7 @@
+.display{
+	grid-colunm:span4;
+	font-size:3em;
+
+	display:flex;
+	justify-content: flex-end;
+}
