@@ -14,16 +14,23 @@ class Todo extends Component {
 
        this.handleAdd = this.handleAdd.bind(this)
        this.handleChange = this.handleChange.bind(this)
+
+       this.refresh();
    } 
    handleChange(e){
        this.setState({...this.state, description: e.target.value})
+   }
+
+   refresh(){
+       axios.get(`${URL}?sort=-createAt`)
+       .then(resp => console.log(resp.data))
    }
 
    handleAdd(){
        //console.log(this.state.description);
        const description = this.state.description
        axios.post(URL, { description })
-       .then(resp => console.log('Funcionou'))
+       .then(resp => this.refresh())
    }
 
     render() {
@@ -34,7 +41,7 @@ class Todo extends Component {
                 <TodoForm description={this.state.description}
                 handleAdd={this.handleAdd}
                 handleChange={this.handleChange}/>
-                <TodoList />
+                <TodoList list={this.state.list}/>
             </div>
             
         )
