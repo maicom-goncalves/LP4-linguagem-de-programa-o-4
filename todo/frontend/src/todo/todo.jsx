@@ -1,51 +1,83 @@
-import React, { Component } from 'react'
-import axios from 'axios'
+import React, { Component } from 'react';
+import PageHeader from '../tamplete/pageHeader';
+import axios from 'axios';
 
-import PageHeader from '../template/pageHeader'
-import TodoForm from './todoForm'
-import TodoList from './todoList'
+import TodoForm from './todoForm';
+import TodoList from './todoList';
 
-const URL = 'http://localhost:3001/api/todos'
+const URL = 'http://localhost:3001/api/todos';
+//const URL_JAVA = 'http://localhost:8081/api/javatodos/'
 
-class Todo extends Component {
-   constructor(props){
-       super(props)
-       this.state = { description: '', list:[]}
+export default class Todo extends Component {
+    constructor(props){
+        super(props)
 
-       this.handleAdd = this.handleAdd.bind(this)
-       this.handleChange = this.handleChange.bind(this)
+        this.state = {description: '', list:[]} 
 
-       this.refresh();
-   } 
-   handleChange(e){
-       this.setState({...this.state, description: e.target.value})
-   }
+        this.handleChanger = this.handleChanger.bind(this);
+        this.handleAdd = this.handleAdd.bind(this);
+        this.handleRemove = this.handleRemove.bind(this);
+        this.handleMarkAsDone = this.handleMarkAsDone.bind(this);
+        this.handleMarkAsPending = this.handleMarkAsPending.bind(this);
+        this.handleSearch = this.handleSearch.bind(this);
+        this.handleClear = this.handleClear.bind(this);   
+        this.refrech();
+    }
 
-   refresh(){
-       axios.get(`${URL}?sort=-createAt`)
-       .then(resp => console.log(resp.data))
-   }
+    handleChanger(e){
+        this.setState({...this.state, description: e.target.value})
+    }
 
-   handleAdd(){
-       //console.log(this.state.description);
-       const description = this.state.description
-       axios.post(URL, { description })
-       .then(resp => this.refresh())
-   }
+    // preciso atualizar meu reflach caso na seja passado nenhuma descricao, ele se torna nulo
+    refrech(description = ''){ 
+        const search = description ? `&description__regex=/${description}/` : ''
+        axios.get(`${URL}?sort=-createdAt${search}`)//ordenacao oferecida pela api
+        .then(resp => this.setState({ ...this.state, description: description, list: resp.data}));
+    }
+    handleSearch(){
+        this.refrech(this.state.description)
+    }
+
+    //função de adicionar 
+    handleAdd(){
+        const description = this.state.description;
+        axios.post(URL_JAVA, {description})
+        .then( resp => this.refrech());//adicionou? ele atualiza!!!
+    }
+    handleRemove(todo){
+        axios.delete(`${URL}/${todo._id}`)
+        .then( resp => this.refrech());
+    }
+    handleClear(){
+        this.refrech()
+    }
+    handleMarkAsDone(todo){
+        axios.put(`${URL}/${todo._id}`, {...todo, done: true})
+        .then( resp => this.refrech(this.state.description));
+    }
+    handleMarkAsPending(todo){
+        axios.put(`${URL}/${todo._id}`, {...todo, done: false})
+        .then( resp => this.refrech(this.state.description));
+    }
 
     render() {
-        return (
+        return(
             <div>
-                <PageHeader name="Tarefas" small="Cadastro">
-                </PageHeader>
-                <TodoForm description={this.state.description}
+                <PageHeader name="Tarefas" small="Cadastro"></PageHeader>
+                <TodoForm 
+                description={this.state.description}
                 handleAdd={this.handleAdd}
-                handleChange={this.handleChange}/>
-                <TodoList list={this.state.list}/>
+                handleChanger={this.handleChanger}
+                handleSearch={this.handleSearch}
+                handleClear={this.handleClear}
+                />
+                <TodoList 
+                list={this.state.list}
+                handleRemove={this.handleRemove}
+                handleMarkAsDone={this.handleMarkAsDone}
+                handleMarkAsPending={this.handleMarkAsPending}
+                />
             </div>
-            
         )
     }
 }
-
-export default Todo

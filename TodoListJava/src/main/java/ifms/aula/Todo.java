@@ -14,6 +14,8 @@ public class Todo {
 	
 	private Date createdAt = new Date();
 	
+	private boolean done = false;
+	
 	
 
 	public String getId() {
