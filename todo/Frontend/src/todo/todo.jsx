@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import PageHeader from '../tamplete/pageHeader';
+import PageHeader from '../template/pageHearder';
 import axios from 'axios';
 
 import TodoForm from './todoForm';
 import TodoList from './todoList';
 
 const URL = 'http://localhost:3001/api/todos';
-//const URL_JAVA = 'http://localhost:8081/api/javatodos/'
+const URL_JAVA = 'http://localhost:8081/api/javatodos/';
 
 export default class Todo extends Component {
     constructor(props){
@@ -28,35 +28,35 @@ export default class Todo extends Component {
         this.setState({...this.state, description: e.target.value})
     }
 
-    // preciso atualizar meu reflach caso na seja passado nenhuma descricao, ele se torna nulo
+    
     refrech(description = ''){ 
         const search = description ? `&description__regex=/${description}/` : ''
-        axios.get(`${URL}?sort=-createdAt${search}`)//ordenacao oferecida pela api
+        axios.get(`${URL}?sort=-createdAt${search}`)
         .then(resp => this.setState({ ...this.state, description: description, list: resp.data}));
     }
     handleSearch(){
         this.refrech(this.state.description)
     }
 
-    //função de adicionar 
+    
     handleAdd(){
         const description = this.state.description;
         axios.post(URL_JAVA, {description})
-        .then( resp => this.refrech());//adicionou? ele atualiza!!!
+        .then( resp => this.refrech());
     }
     handleRemove(todo){
-        axios.delete(`${URL}/${todo._id}`)
+        axios.delete(`${URL_JAVA}/${todo._id}`)
         .then( resp => this.refrech());
     }
     handleClear(){
         this.refrech()
     }
     handleMarkAsDone(todo){
-        axios.put(`${URL}/${todo._id}`, {...todo, done: true})
+        axios.put(`${URL_JAVA}/${todo._id}`, {...todo, done: true})
         .then( resp => this.refrech(this.state.description));
     }
     handleMarkAsPending(todo){
-        axios.put(`${URL}/${todo._id}`, {...todo, done: false})
+        axios.put(`${URL_JAVA}/${todo._id}`, {...todo, done: false})
         .then( resp => this.refrech(this.state.description));
     }
 
